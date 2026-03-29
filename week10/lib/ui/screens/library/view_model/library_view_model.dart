@@ -36,7 +36,7 @@ class LibraryViewModel extends ChangeNotifier {
     fetchSong();
   }
 
-  void fetchSong() async {
+  void fetchSong({bool forceFetch = false}) async {
     // 1- Loading state
     data = AsyncValue.loading();
     notifyListeners();
@@ -69,14 +69,21 @@ class LibraryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> refresh() async {
+    fetchSong(forceFetch: true);
+  }
+
   bool isSongPlaying(Song song) => playerState.currentSong == song;
 
   void start(Song song) => playerState.start(song);
   void stop(Song song) => playerState.stop();
 
   Future<void> likeSong(Song song) async {
+    try {
       await songRepository.likeSong(song.id, song.like);
-      fetchSong();
-
+      fetchSong(forceFetch: true);
+      } catch (e) {
+      rethrow;
+    }
   }
 }
